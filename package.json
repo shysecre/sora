@@ -1,0 +1,11 @@
+{
+  "name": "sora",
+  "version": "0.0.1",
+  "repository": "https://github.com/sekkure/sora.git",
+  "author": "sekkure <secreori@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start:back:dev": "cd backend && yarn start:dev",
+    "start:front:dev": "cd frontend & yarn start"
+  }
+}

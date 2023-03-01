@@ -9,14 +9,18 @@
     "target": "es2017",
     "sourceMap": true,
     "outDir": "./build",
-    "baseUrl": "./",
     "incremental": true,
+    "baseUrl": ".",
     "skipLibCheck": true,
     "strictNullChecks": false,
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@modules/*": ["src/modules/*"],
+      "@common/*": ["src/common/*"]
+    }
   },
-  "include": ["src"]
+  "include": ["src", "env.d.ts"]
 }
