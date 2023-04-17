@@ -1,0 +1,51 @@
+version: "3.9"
+services:
+  db:
+    container_name: database
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGUSER: ${PGUSER}
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./pg-data:/var/lib/postgresql/data
+    networks:
+      - shared-network
+
+  backend:
+    container_name: "server"
+    build: "./backend"
+    environment:
+      - POSTGRES_HOST=db
+      - NODE_ENV=production
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+    ports:
+      - "5001:5001"
+    networks:
+      - shared-network
+
+  frontned:
+    container_name: "client"
+    build: "./frontend"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    networks:
+      - shared-network
+
+networks:
+  shared-network:
