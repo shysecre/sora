@@ -1,21 +1,84 @@
-import { generateRandomState } from '@common/utils/generate-random-state.util';
-import { GetAuthLinkResponseDTO } from '@modules/auth/dto/auth-responses.dto';
-import { Injectable } from '@nestjs/common';
+import { UserCredsDataService } from '@modules/database/services/user-cred-data.service';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { AuthServiceCreateTokensReturn } from '../types/auth-service.types';
+import { compareHash, hash } from '@common/utils/hashes.util';
+import { ConfigService } from '@nestjs/config';
+import { EnvObject } from '@modules/app/types/app.types';
 
 @Injectable()
 export class AuthService {
-  getAuthLink(): GetAuthLinkResponseDTO {
-    const url = 'https://id.twitch.tv/oauth2/authorize';
-    const states = ['channel:manage:redemptions'];
+  constructor(
+    private jwtService: JwtService,
+    private userCredsDataService: UserCredsDataService,
+    private configService: ConfigService<EnvObject, true>,
+  ) {}
 
-    const searchParams = new URLSearchParams({
-      state: generateRandomState(10),
-      scope: states.join(' '),
-      redirect_uri: process.env.TWITCH_REDIRECT_URL,
-      client_id: process.env.CLIENT_ID,
-      response_type: 'code',
+  public async refreshAccessToken(
+    userId: string,
+    refreshToken: string,
+  ): Promise<AuthServiceCreateTokensReturn> {
+    const usersCreds = await this.userCredsDataService.findCredsByUserId(
+      userId,
+    );
+
+    if (!usersCreds) {
+      throw new HttpException(
+        'Credentionals with provide user id was not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    if (!compareHash(refreshToken, usersCreds.refreshToken)) {
+      throw new HttpException(
+        'Refresh tokens not the same',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const tokens = this.createTokens(userId);
+    const hashedRefreshToken = hash(tokens.refreshToken);
+
+    await this.updateRefreshToken(userId, hashedRefreshToken);
+
+    return tokens;
+  }
+
+  public createTokens(userId: string): AuthServiceCreateTokensReturn {
+    const accessToken = this.jwtService.sign(
+      {
+        id: userId,
+      },
+      {
+        expiresIn: '90m',
+        secret: this.configService.get('JWT_SECRET'),
+      },
+    );
+
+    const refreshToken = this.jwtService.sign(
+      {
+        id: userId,
+      },
+      {
+        expiresIn: '7d',
+        secret: this.configService.get('JWT_SECRET'),
+      },
+    );
+
+    return { accessToken, refreshToken };
+  }
+
+  public updateRefreshToken(userId: string, refreshToken: string) {
+    return this.userCredsDataService.updateCreds({
+      userId,
+      refreshToken,
     });
+  }
 
-    return { link: `${url}?${searchParams}` };
+  public saveRefreshToken(userId: string, refreshToken: string) {
+    return this.userCredsDataService.createCreds({
+      userId,
+      refreshToken,
+    });
   }
 }

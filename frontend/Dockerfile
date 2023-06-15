@@ -2,13 +2,13 @@ FROM node:18.16-alpine
 
 WORKDIR /app
 
-COPY ["package.json", "yarn.lock", "tsconfig.json", ".env", "./"]
-
-RUN yarn
-
 EXPOSE 3000
+
+COPY ["package.json", "yarn.lock", "tsconfig.json", ".env", "./"]
 
 COPY ["./src", "./src"]
 COPY ["./public", "./public"]
 
-CMD ["yarn", "start"]
+RUN yarn && yarn build && yarn global add serve
+
+CMD serve -s build
