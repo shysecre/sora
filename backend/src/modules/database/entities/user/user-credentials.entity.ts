@@ -12,5 +12,5 @@ export class UserCredentialsEntity extends EnhancedBaseEntity {
   user: UserEntity;
 
   @Column()
-  refreshToken: string;
+  refresh_token: string;
 }

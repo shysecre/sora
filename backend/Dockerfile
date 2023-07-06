@@ -2,7 +2,7 @@ FROM node:18.16-alpine
 
 WORKDIR /app
 
-EXPOSE 5001
+EXPOSE 443
 
 COPY ["package.json", "yarn.lock", "tsconfig.json", "nest-cli.json", "tsconfig.build.json", ".env", "./"]
 

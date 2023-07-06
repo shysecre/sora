@@ -16,16 +16,22 @@ export class UserEntity extends EnhancedBaseEntity {
       onDelete: 'SET NULL',
     },
   )
-  twitchCredentials: UserTwitchCredentialsEntity | null;
+  twitch_credentials: UserTwitchCredentialsEntity | null;
 
   @Column()
-  twitchId: string;
+  twitch_id: string;
 
   @Column()
-  twitchImage: string;
+  twitch_image: string;
 
   @Column()
-  twitchName: string;
+  twitch_name: string;
+
+  @Column({ default: null })
+  last_category: string | null;
+
+  @Column({ default: false })
+  is_subscribed: boolean;
 
   @OneToOne(() => UserCredentialsEntity, (credentials) => credentials.user, {
     cascade: true,
@@ -38,5 +44,5 @@ export class UserEntity extends EnhancedBaseEntity {
   categories: CategoryEntity[];
 
   @OneToMany(() => CategoryItemEntity, (categoryItem) => categoryItem.user)
-  categoryItems: CategoryItemEntity[];
+  category_items: CategoryItemEntity[];
 }

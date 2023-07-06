@@ -5,7 +5,7 @@ import { UserEntity } from '../user/user.entity';
 
 @Entity({ name: 'category_item' })
 export class CategoryItemEntity extends EnhancedBaseEntity {
-  @ManyToOne(() => UserEntity, (user) => user.categoryItems, {
+  @ManyToOne(() => UserEntity, (user) => user.category_items, {
     onDelete: 'CASCADE',
     cascade: true,
   })
@@ -14,7 +14,6 @@ export class CategoryItemEntity extends EnhancedBaseEntity {
   @ManyToMany(() => CategoryEntity, (category) => category.items, {
     onDelete: 'CASCADE',
     cascade: true,
-    nullable: true,
   })
   @JoinTable({
     name: 'category_and_item',
@@ -27,8 +26,8 @@ export class CategoryItemEntity extends EnhancedBaseEntity {
       referencedColumnName: 'id',
     },
   })
-  categories: CategoryEntity[] | null;
+  categories: CategoryEntity[];
 
   @Column()
-  twitchRewardId: string;
+  twitch_reward_id: string;
 }

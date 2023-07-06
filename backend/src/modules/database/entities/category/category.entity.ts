@@ -18,11 +18,11 @@ export class CategoryEntity extends EnhancedBaseEntity {
   items: CategoryItemEntity[];
 
   @Column()
-  twitchId: string;
+  twitch_id: string;
 
   @Column()
-  twitchName: string;
+  twitch_name: string;
 
   @Column()
-  twitchBoxImage: string;
+  twitch_box_image: string;
 }

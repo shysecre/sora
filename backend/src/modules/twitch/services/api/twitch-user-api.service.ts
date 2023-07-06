@@ -2,13 +2,9 @@ import { RequestManager } from '@common/request-manager/request-manager';
 import { createAuthHeader } from '@common/utils/create-auth-header.util';
 import { EnvObject } from '@modules/app/types/app.types';
 import {
-  GetTwitchApiCategoriesByNameOptions,
-  GetTwitchApiCategoriesByNameResponse,
   GetTwitchApiUserOptions,
-  GetTwitchApiUserCustomRewardsOptions,
   GetTwtichApiUserResponse,
-  CreateUserCustomRewardsOptions as CreateUserCustomRewardOptions,
-  CreateUserCustomRewardResponse,
+  GetTwitchApiUserCustomRewardsOptions,
 } from '@modules/twitch/types/twitch-api.types';
 import { GetTwitchUserCustomRewardsResponseDTO } from '@modules/user/dto/user-responses.dto';
 import { Injectable } from '@nestjs/common';
@@ -16,7 +12,7 @@ import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 
 @Injectable()
-export class TwitchApiService extends RequestManager {
+export class TwitchUserApiService extends RequestManager {
   constructor(private configService: ConfigService<EnvObject, true>) {
     super(axios, { baseURL: 'https://api.twitch.tv/helix' });
   }
@@ -45,52 +41,6 @@ export class TwitchApiService extends RequestManager {
         broadcaster_id: twitchId,
       },
       config: {
-        headers: {
-          Authorization: createAuthHeader(tokenType, accessToken),
-          'Client-Id': this.configService.get('CLIENT_ID'),
-        },
-      },
-    });
-  }
-
-  public getTwitchCategoriesByName({
-    name,
-    accessToken,
-    tokenType,
-    cursor,
-  }: GetTwitchApiCategoriesByNameOptions): Promise<GetTwitchApiCategoriesByNameResponse> {
-    const body = cursor
-      ? {
-          query: name,
-          after: cursor,
-        }
-      : {
-          query: name,
-        };
-
-    return this.get('search/categories', {
-      body,
-      config: {
-        headers: {
-          Authorization: createAuthHeader(tokenType, accessToken),
-          'Client-Id': this.configService.get('CLIENT_ID'),
-        },
-      },
-    });
-  }
-
-  public createUserCustomReward({
-    twitchId,
-    customReward,
-    accessToken,
-    tokenType,
-  }: CreateUserCustomRewardOptions): Promise<CreateUserCustomRewardResponse> {
-    return this.post('channel_points/custom_rewards', {
-      body: customReward,
-      config: {
-        params: {
-          broadcaster_id: twitchId,
-        },
         headers: {
           Authorization: createAuthHeader(tokenType, accessToken),
           'Client-Id': this.configService.get('CLIENT_ID'),

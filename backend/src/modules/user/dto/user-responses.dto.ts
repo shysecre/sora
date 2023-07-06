@@ -24,19 +24,19 @@ export class GetUserByIdDTO {
   @ApiProperty({
     description: "User's twitch id",
   })
-  twitchId: string;
+  twitch_id: string;
 
   @IsString()
   @IsNotEmpty()
   @ApiProperty({
     description: "User's twitch image",
   })
-  twitchImage: string;
+  twitch_image: string;
 
   @IsString()
   @IsNotEmpty()
   @ApiProperty({
     description: "User's twitch name",
   })
-  twitchName: string;
+  twitch_name: string;
 }

@@ -2,16 +2,18 @@ import { capitalizeFirstLetter } from '@common/utils/capitalize-first-letter.uti
 import { ParsedJwtUser } from '@modules/auth/types/auth-service.types';
 import { UserDataService } from '@modules/database/services/user-data.service';
 import { UserTwitchCredsDataService } from '@modules/database/services/user-twitch-creds-data.service';
-import { TwitchApiService } from '@modules/twitch/services/api/twitch-api.service';
-import { TwitchAuthApiService } from '@modules/twitch/services/api/twitch-auth-api.service';
 import { fomdCredentials } from '@modules/twitch/utils/form-credentionals.util';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  TwitchAuthApiService,
+  TwitchUserApiService,
+} from '@modules/twitch/services';
 
 @Injectable()
 export class UserService {
   constructor(
     private userDataService: UserDataService,
-    private twitchApiService: TwitchApiService,
+    private twitchUserApiService: TwitchUserApiService,
     private twitchAuthApiService: TwitchAuthApiService,
     private userTwitchCredsDataService: UserTwitchCredsDataService,
   ) {}
@@ -30,7 +32,7 @@ export class UserService {
 
   public async getUserCustomRewards({ id, twitchId, creds }: ParsedJwtUser) {
     try {
-      return this.twitchApiService.getUserCustomRewards({
+      return this.twitchUserApiService.getUserCustomRewards({
         accessToken: creds.accessToken,
         tokenType: creds.tokenType,
         twitchId,
@@ -52,7 +54,7 @@ export class UserService {
         twitchCredentials: fomdCredentials(refreshedTokens),
       });
 
-      return this.twitchApiService.getUserCustomRewards({
+      return this.twitchUserApiService.getUserCustomRewards({
         accessToken: refreshedTokens.access_token,
         tokenType: capitalizeFirstLetter(refreshedTokens.token_type),
         twitchId,

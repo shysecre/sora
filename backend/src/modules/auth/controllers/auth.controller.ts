@@ -3,7 +3,7 @@ import {
   GetAuthLinkResponseDTO,
   ProcessAuthResponseDTO,
 } from '@modules/twitch/dto/auth-responses.dto';
-import { TwitchAuthService } from '@modules/twitch/services/twitch-auth.service';
+import { TwitchAuthService } from '@modules/twitch/services';
 import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from '../services/auth.service';

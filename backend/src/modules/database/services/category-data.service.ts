@@ -14,9 +14,9 @@ export class LocalCategoryDataService {
       user: {
         id: userId,
       },
-      twitchId,
-      twitchName,
-      twitchBoxImage,
+      twitch_id: twitchId,
+      twitch_name: twitchName,
+      twitch_box_image: twitchBoxImage,
     }).save();
   }
 

@@ -23,18 +23,18 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         id: payload.id,
       },
       relations: {
-        twitchCredentials: true,
+        twitch_credentials: true,
       },
     });
 
     return {
       id: payload.id,
-      twitchId: user.twitchId,
+      twitchId: user.twitch_id,
       creds: {
-        accessToken: decrypt(user.twitchCredentials.accessToken),
-        refreshToken: decrypt(user.twitchCredentials.refreshToken),
+        accessToken: decrypt(user.twitch_credentials.access_token),
+        refreshToken: decrypt(user.twitch_credentials.refresh_token),
         tokenType: capitalizeFirstLetter(
-          decrypt(user.twitchCredentials.tokenType),
+          decrypt(user.twitch_credentials.token_type),
         ),
       },
     };

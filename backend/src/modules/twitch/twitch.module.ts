@@ -1,22 +1,44 @@
 import { AuthService } from '@modules/auth/services/auth.service';
 import { DatabaseModule } from '@modules/database/database.module';
-import { TwitchApiService } from '@modules/twitch/services/api/twitch-api.service';
-import { TwitchAuthService } from '@modules/twitch/services/twitch-auth.service';
 import { Logger, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { TwitchAuthApiService } from './services/api/twitch-auth-api.service';
+import { TwitchController } from '@modules/twitch/controller/twitch.controller';
+import {
+  TwitchEventSubService,
+  TwitchAuthApiService,
+  TwitchCategoryApiService,
+  TwitchCustomRewardApiService,
+  TwitchEventSubApiService,
+  TwitchUserApiService,
+  TwitchAuthService,
+  TwitchChannelsApiService,
+} from '@modules/twitch/services';
 
 @Module({
+  controllers: [TwitchController],
   imports: [ConfigModule, DatabaseModule],
   providers: [
+    TwitchEventSubService,
     TwitchAuthService,
     TwitchAuthApiService,
-    TwitchApiService,
+    TwitchCategoryApiService,
+    TwitchCustomRewardApiService,
+    TwitchEventSubApiService,
+    TwitchUserApiService,
+    TwitchChannelsApiService,
     AuthService,
     JwtService,
     Logger,
   ],
-  exports: [TwitchAuthService, TwitchAuthApiService, TwitchApiService],
+  exports: [
+    TwitchAuthService,
+    TwitchAuthApiService,
+    TwitchCategoryApiService,
+    TwitchCustomRewardApiService,
+    TwitchChannelsApiService,
+    TwitchUserApiService,
+    TwitchEventSubApiService,
+  ],
 })
 export class TwitchModule {}

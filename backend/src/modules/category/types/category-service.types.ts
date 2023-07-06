@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsArray, IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class GetCategoriesByNameServiceOptions {
   @IsString()
@@ -36,14 +36,4 @@ export class CreateLocalCategoryServiceOptions {
   @IsString()
   @ApiProperty()
   userId: string;
-}
-
-export class AddCustomRewardToLocalCategoryServiceOptions {
-  @IsArray()
-  @ApiProperty()
-  categoryIds: string[];
-
-  @IsArray()
-  @ApiProperty()
-  categoryItemIds: string[];
 }

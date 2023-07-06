@@ -9,7 +9,7 @@ export class UserCredsDataService {
       user: {
         id: userId,
       },
-      refreshToken,
+      refresh_token: refreshToken,
     }).save();
   }
 
@@ -21,7 +21,7 @@ export class UserCredsDataService {
         },
       },
       {
-        refreshToken,
+        refresh_token: refreshToken,
       },
     );
   }

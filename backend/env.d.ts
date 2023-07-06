@@ -17,6 +17,8 @@ declare global {
       ALGORITHM: string | null;
       HASHING_KEY: string | null;
       HASHING_IV: string | null;
+      TWITCH_EVENT_SUB_SECRET: string | null;
+      TWITCH_EVENT_SUB_CALLBACK: string | null
     }
   }
 }

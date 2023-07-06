@@ -4,7 +4,7 @@ import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 
 @Entity({ name: 'user_twitch_credential' })
 export class UserTwitchCredentialsEntity extends EnhancedBaseEntity {
-  @OneToOne(() => UserEntity, (user) => user.twitchCredentials, {
+  @OneToOne(() => UserEntity, (user) => user.twitch_credentials, {
     onDelete: 'CASCADE',
     orphanedRowAction: 'delete',
   })
@@ -12,11 +12,11 @@ export class UserTwitchCredentialsEntity extends EnhancedBaseEntity {
   user: UserEntity;
 
   @Column()
-  accessToken: string;
+  access_token: string;
 
   @Column()
-  refreshToken: string;
+  refresh_token: string;
 
   @Column()
-  tokenType: string;
+  token_type: string;
 }

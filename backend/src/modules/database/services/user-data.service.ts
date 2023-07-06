@@ -22,7 +22,7 @@ export class UserDataService {
   ): Promise<UserEntity> {
     return UserEntity.findOne({
       where: {
-        twitchId: id,
+        twitch_id: id,
       },
       relations,
     });

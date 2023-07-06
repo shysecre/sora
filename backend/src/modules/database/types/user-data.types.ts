@@ -4,13 +4,13 @@ import { IsString } from 'class-validator';
 export class UserDataCreateUserCredentialsOptions {
   @IsString()
   @ApiProperty()
-  accessToken: string;
+  access_token: string;
 
   @IsString()
   @ApiProperty()
-  refreshToken: string;
+  refresh_token: string;
 
   @IsString()
   @ApiProperty()
-  tokenType: string;
+  token_type: string;
 }

@@ -5,7 +5,6 @@ import { GetAuthLinkResponseDTO } from '@modules/twitch/dto/auth-responses.dto';
 import { fomdCredentials } from '@modules/twitch/utils/form-credentionals.util';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { TwitchApiService } from './api/twitch-api.service';
 import { UserDataService } from '@modules/database/services/user-data.service';
 import { AuthService } from '@modules/auth/services/auth.service';
 import { TwitchAuthServiceProccessAuthReturn } from '../types/twitch-auth-service.types';
@@ -14,13 +13,20 @@ import { hash } from '@common/utils/hashes.util';
 import { generateRandomState } from '@common/utils/generate-random-state.util';
 import { TwitchAuthApiService } from './api/twitch-auth-api.service';
 import { UserEntity } from '@modules/database/entities';
+import {
+  TwitchChannelsApiService,
+  TwitchEventSubApiService,
+  TwitchUserApiService,
+} from '@modules/twitch/services';
 
 @Injectable()
 export class TwitchAuthService {
   constructor(
     private configService: ConfigService<EnvObject, true>,
     private twitchAuthApiService: TwitchAuthApiService,
-    private twitchApiService: TwitchApiService,
+    private twitchUserApiService: TwitchUserApiService,
+    private twitchChannelsApiService: TwitchChannelsApiService,
+    private twitchEventSubApiService: TwitchEventSubApiService,
     private userDataService: UserDataService,
     private authService: AuthService,
   ) {}
@@ -58,7 +64,7 @@ export class TwitchAuthService {
       throw new HttpException("Can't auth user", HttpStatus.BAD_GATEWAY);
     }
 
-    const twitchUserData = await this.twitchApiService.getUser({
+    const twitchUserData = await this.twitchUserApiService.getUser({
       accessToken: twitchUserTokenData.access_token,
       tokenType: capitalizeFirstLetter(twitchUserTokenData.token_type),
     });
@@ -73,19 +79,28 @@ export class TwitchAuthService {
     const foundTwitchUser = twitchUserData.data[0];
     const formdCredentials = fomdCredentials(twitchUserTokenData);
 
+    const twitchChannelData = await this.twitchChannelsApiService.getChannel({
+      accessToken: twitchUserTokenData.access_token,
+      tokenType: capitalizeFirstLetter(twitchUserTokenData.token_type),
+      twitchId: foundTwitchUser.id,
+    });
+
+    const foundUserChannel = twitchChannelData.data[0];
+
     let foundUser = await this.userDataService.getByTwitchId(
       foundTwitchUser.id,
-      { twitchCredentials: true },
+      { twitch_credentials: true },
     );
 
     let tokens: AuthServiceCreateTokensReturn = null;
 
     if (!foundUser) {
       foundUser = await this.userDataService.create({
-        twitchId: foundTwitchUser.id,
-        twitchCredentials: formdCredentials,
-        twitchImage: foundTwitchUser.profile_image_url,
-        twitchName: foundTwitchUser.display_name,
+        twitch_id: foundTwitchUser.id,
+        twitch_credentials: formdCredentials,
+        twitch_image: foundTwitchUser.profile_image_url,
+        twitch_name: foundTwitchUser.display_name,
+        last_category: foundUserChannel.game_id,
       });
 
       tokens = this.authService.createTokens(foundUser.id);
@@ -95,11 +110,13 @@ export class TwitchAuthService {
         hash(tokens.refreshToken),
       );
     } else {
-      foundUser.twitchImage = foundTwitchUser.profile_image_url;
-      foundUser.twitchName = foundTwitchUser.display_name;
-      foundUser.twitchCredentials.accessToken = formdCredentials.accessToken;
-      foundUser.twitchCredentials.refreshToken = formdCredentials.refreshToken;
-      foundUser.twitchCredentials.tokenType = formdCredentials.tokenType;
+      foundUser.twitch_image = foundTwitchUser.profile_image_url;
+      foundUser.twitch_name = foundTwitchUser.display_name;
+      foundUser.twitch_credentials.access_token = formdCredentials.access_token;
+      foundUser.twitch_credentials.refresh_token =
+        formdCredentials.refresh_token;
+      foundUser.twitch_credentials.token_type = formdCredentials.token_type;
+      foundUser.last_category = foundUserChannel.game_id;
 
       tokens = this.authService.createTokens(foundUser.id);
 
@@ -109,6 +126,23 @@ export class TwitchAuthService {
         foundUser.id,
         hash(tokens.refreshToken),
       );
+    }
+
+    if (!foundUser.is_subscribed) {
+      await this.twitchEventSubApiService.createEventSubscription({
+        accessToken: twitchUserTokenData.access_token,
+        tokenType: capitalizeFirstLetter(twitchUserTokenData.token_type),
+        condition: {
+          broadcaster_user_id: foundTwitchUser.id,
+        },
+        transport: {
+          callback: this.configService.get('TWITCH_EVENT_SUB_CALLBACK'),
+          method: 'webhook',
+          secret: this.configService.get('TWITCH_EVENT_SUB_SECRET'),
+        },
+        type: 'channel.update',
+        version: 'beta',
+      });
     }
 
     return tokens;

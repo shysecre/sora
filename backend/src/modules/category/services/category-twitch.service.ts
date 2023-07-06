@@ -1,12 +1,12 @@
-import { TwitchApiService } from '@modules/twitch/services/api/twitch-api.service';
 import { Injectable } from '@nestjs/common';
 import { GetCategoriesByNameServiceOptions } from '../types/category-service.types';
+import { TwitchCategoryApiService } from '@modules/twitch/services';
 
 @Injectable()
 export class CategoryTwitchService {
-  constructor(private twitchApiService: TwitchApiService) {}
+  constructor(private twitchCategoryiApiService: TwitchCategoryApiService) {}
 
   public getCategoriesByName(body: GetCategoriesByNameServiceOptions) {
-    return this.twitchApiService.getTwitchCategoriesByName(body);
+    return this.twitchCategoryiApiService.getTwitchCategoriesByName(body);
   }
 }

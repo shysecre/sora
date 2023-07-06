@@ -45,22 +45,30 @@ export class AddCustomRewardToLocalCategoryRequestDTO {
   @IsArray()
   @ApiProperty({
     isArray: true,
-    description: 'Local category UUIDs',
-    type: () => String,
+    description: 'Local category item with category ids',
+    type: () => AddCustomRewardToLocalCategoryItemRequestDTO,
   })
-  categoryIds: string[];
+  categoryItems: AddCustomRewardToLocalCategoryItemRequestDTO[];
+}
 
-  @IsArray()
+class AddCustomRewardToLocalCategoryItemRequestDTO {
+  @ApiProperty({
+    description: 'Category item id',
+  })
+  @IsString()
+  categoryItemId: string;
+
   @ApiProperty({
     isArray: true,
-    description: 'Local category item UUIDs',
+    description: 'Array of category ids. Category item will be added to them',
     type: () => String,
   })
-  categoryItemIds: string[];
+  @IsArray({ each: true })
+  categoryIds: string[];
 }
 
 export class CreateLocalCategoryItemRequestDTO {
   @IsString()
   @ApiProperty()
-  test: string;
+  twitchRewardId: string;
 }

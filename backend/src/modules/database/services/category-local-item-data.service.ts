@@ -14,7 +14,27 @@ export class LocalCategoryItemDataService {
       .execute();
   }
 
-  public createLocalCategoryItem(twitchRewardId: string) {
-    return CategoryItemEntity.create({ twitchRewardId }).save();
+  public getLocalItemsByUserId(userId: string) {
+    return CategoryItemEntity.find({ where: { user: { id: userId } } });
+  }
+
+  public getLocalCategoryItemsByCategoryId(userId: string, categoryId: string) {
+    return CategoryItemEntity.find({
+      where: {
+        user: {
+          id: userId,
+        },
+        categories: { id: categoryId },
+      },
+    });
+  }
+
+  public createLocalCategoryItem(userId: string, twitchRewardId: string) {
+    return CategoryItemEntity.create({
+      user: {
+        id: userId,
+      },
+      twitch_reward_id: twitchRewardId,
+    }).save();
   }
 }

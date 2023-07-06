@@ -6,7 +6,7 @@ import {
   GetTwitchUserCustomRewardsResponseDTO,
   GetUserByIdDTO,
 } from '../dto/user-responses.dto';
-import { GetUser } from '@common/decorators/getUser.decorator';
+import { GetUser } from '@common/decorators/get-user.decorator';
 import { ParsedJwtUser } from '@modules/auth/types/auth-service.types';
 
 @Controller('user')

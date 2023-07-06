@@ -12,4 +12,9 @@ export interface EnvObject {
   TWITCH_CRED_SECRET: string;
   CIPHER_KEY_SECRET: string;
   SESSION_SECRET: string;
+  ALGORITHM: string;
+  HASHING_KEY: string;
+  HASHING_IV: string;
+  TWITCH_EVENT_SUB_SECRET: string;
+  TWITCH_EVENT_SUB_CALLBACK: string;
 }

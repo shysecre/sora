@@ -9,6 +9,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
+import { string } from 'joi';
 
 export class INCLUDE_AUTH {
   @IsString()
@@ -195,6 +196,47 @@ export class TwitchApiCustomReward {
   cooldown_expires_at: string | null;
 }
 
+export class TwitchApiChannel {
+  @IsString()
+  @ApiProperty()
+  broadcaster_id: string;
+
+  @IsString()
+  @ApiProperty()
+  broadcaster_login: string;
+
+  @IsString()
+  @ApiProperty()
+  broadcaster_name: string;
+
+  @IsString()
+  @ApiProperty()
+  broadcaster_language: string;
+
+  @IsString()
+  @ApiProperty()
+  game_name: string;
+
+  @IsString()
+  @ApiProperty()
+  game_id: string;
+
+  @IsString()
+  @ApiProperty()
+  title: string;
+
+  @IsString()
+  @ApiProperty()
+  delay: number;
+
+  @IsArray()
+  @ApiProperty({
+    type: String,
+    isArray: true,
+  })
+  tags: string[];
+}
+
 export class TwitchApiUser {
   @IsString()
   @ApiProperty()
@@ -260,6 +302,15 @@ export class GetTwtichApiUserResponse {
   data: TwitchApiUser[];
 }
 
+export class GetTwitchApiChannelResponse {
+  @IsArray()
+  @ApiProperty({
+    type: TwitchApiChannel,
+    isArray: true,
+  })
+  data: TwitchApiChannel[];
+}
+
 export class GetTwitchApiCategoriesByNameResponse {
   @IsArray()
   @ApiProperty({
@@ -271,6 +322,49 @@ export class GetTwitchApiCategoriesByNameResponse {
   @IsString()
   @ApiProperty()
   pagination: string;
+}
+
+export class GetTwitchApiChannelOptions extends INCLUDE_AUTH {
+  twitchId: string;
+}
+
+export class CreateEventSubSubscriptionOptions extends INCLUDE_AUTH {
+  @IsString()
+  @ApiProperty()
+  type: string;
+
+  @IsString()
+  @ApiProperty({
+    enum: {
+      1: '2',
+      2: '2',
+      beta: 'beta',
+    },
+  })
+  version: '1' | '2' | 'beta';
+
+  @IsObject()
+  @ApiProperty({
+    type: {
+      broadcaster_user_id: string,
+    },
+  })
+  condition: {
+    broadcaster_user_id: string;
+  };
+  @IsObject()
+  @ApiProperty({
+    type: {
+      method: 'webhook | websocket',
+      callback: 'string',
+      secret: 'string',
+    },
+  })
+  transport: {
+    method: 'webhook' | 'websocket';
+    callback: string;
+    secret: string;
+  };
 }
 
 export class CreateUserCustomReward {

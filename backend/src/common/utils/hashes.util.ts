@@ -1,4 +1,9 @@
-import { createCipheriv, createDecipheriv, createHash } from 'crypto';
+import {
+  createCipheriv,
+  createDecipheriv,
+  createHash,
+  createHmac,
+} from 'crypto';
 
 export const encrypt = (text: string) => {
   const cipher = createCipheriv(
@@ -29,4 +34,8 @@ export const hash = (text: string) => {
 
 export const compareHash = (toCompare: string, hashedData: string) => {
   return hash(toCompare) === hashedData;
+};
+
+export const getHmac = (secret: string, text: string) => {
+  return createHmac('sha256', secret).update(text).digest('hex');
 };

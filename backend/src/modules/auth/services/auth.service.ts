@@ -29,7 +29,7 @@ export class AuthService {
       );
     }
 
-    if (!compareHash(refreshToken, usersCreds.refreshToken)) {
+    if (!compareHash(refreshToken, usersCreds.refresh_token)) {
       throw new HttpException(
         'Refresh tokens not the same',
         HttpStatus.BAD_REQUEST,
