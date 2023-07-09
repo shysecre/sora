@@ -30,6 +30,11 @@ export class TwitchEventSubChallengeData {
   subscription: Subscription;
 }
 
+export type TwitchEventSubBodyTypeUnion =
+  | TwitchEventSubChallengeData
+  | TwitchEventSubRevocationData
+  | TwitchEventSubChannelUpdateEventData;
+
 class ChannelUpdateData {
   @IsString()
   @ApiProperty()

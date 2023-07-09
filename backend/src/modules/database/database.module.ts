@@ -23,7 +23,7 @@ import { LocalCategoryItemDataService } from './services/category-local-item-dat
         database: configService.get('POSTGRES_DB'),
         entities,
         synchronize: true,
-        logging: ['query', 'error'],
+        logging: ['error'],
       }),
     }),
   ],

@@ -367,14 +367,16 @@ export class CreateEventSubSubscriptionOptions extends INCLUDE_AUTH {
   };
 }
 
-export class CreateUserCustomReward {
+class CustomRewardBase {
   @IsString()
   @ApiProperty()
-  title: string;
+  @IsOptional()
+  title?: string;
 
   @IsNumber()
+  @IsOptional()
   @ApiProperty()
-  cost: number;
+  cost?: number;
 
   @IsString()
   @IsOptional()
@@ -432,14 +434,50 @@ export class CreateUserCustomReward {
   should_redemptions_skip_request_queue?: boolean;
 }
 
+export class CustomRewardBaseCreate extends CustomRewardBase {
+  @IsString()
+  @ApiProperty()
+  title: string;
+
+  @IsNumber()
+  @ApiProperty()
+  cost: number;
+}
+export class CustomRewardBaseUpdate extends CustomRewardBase {
+  @IsBoolean()
+  @IsOptional()
+  @ApiProperty()
+  is_paused?: boolean;
+}
+
 export class CreateUserCustomRewardsOptions extends INCLUDE_AUTH {
   @IsString()
   @ApiProperty()
   twitchId: string;
 
   @IsObject()
-  @ApiProperty()
-  customReward: CreateUserCustomReward;
+  @ApiProperty({
+    type: CustomRewardBaseCreate,
+  })
+  customReward: CustomRewardBaseCreate;
 }
 
-export class CreateUserCustomRewardResponse extends TwitchApiCustomReward {}
+export class CreateUserCustomRewardResponse {
+  data: TwitchApiCustomReward[];
+}
+
+export class UpdateUserCustomRewardsOptions extends INCLUDE_AUTH {
+  @IsString()
+  @ApiProperty()
+  twitchId: string;
+
+  @IsString()
+  @ApiProperty()
+  rewardId: string;
+
+  @IsObject()
+  @ApiProperty({
+    type: CustomRewardBaseUpdate,
+  })
+  body: CustomRewardBaseUpdate;
+}

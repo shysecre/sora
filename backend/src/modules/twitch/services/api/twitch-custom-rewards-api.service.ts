@@ -4,6 +4,7 @@ import { EnvObject } from '@modules/app/types/app.types';
 import {
   CreateUserCustomRewardResponse,
   CreateUserCustomRewardsOptions,
+  UpdateUserCustomRewardsOptions,
 } from '@modules/twitch/types/twitch-api.types';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -26,6 +27,28 @@ export class TwitchCustomRewardApiService extends RequestManager {
       config: {
         params: {
           broadcaster_id: twitchId,
+        },
+        headers: {
+          Authorization: createAuthHeader(tokenType, accessToken),
+          'Client-Id': this.configService.get('CLIENT_ID'),
+        },
+      },
+    });
+  }
+
+  public updateUserCustomReward({
+    body,
+    twitchId,
+    rewardId,
+    tokenType,
+    accessToken,
+  }: UpdateUserCustomRewardsOptions) {
+    return this.patch('channel_points/custom_rewards', {
+      body,
+      config: {
+        params: {
+          broadcaster_id: twitchId,
+          id: rewardId,
         },
         headers: {
           Authorization: createAuthHeader(tokenType, accessToken),

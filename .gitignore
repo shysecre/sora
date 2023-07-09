@@ -1,6 +1,7 @@
 # Build & Trash
 build
 node_modules
+frontend_old
 
 # ENVS
 .env

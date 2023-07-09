@@ -3,7 +3,7 @@ import { EnvObject } from '@modules/app/types/app.types';
 import { ProcessAuthDTO } from '@modules/twitch/dto/auth-requests.dto';
 import { GetAuthLinkResponseDTO } from '@modules/twitch/dto/auth-responses.dto';
 import { fomdCredentials } from '@modules/twitch/utils/form-credentionals.util';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UserDataService } from '@modules/database/services/user-data.service';
 import { AuthService } from '@modules/auth/services/auth.service';
@@ -29,12 +29,13 @@ export class TwitchAuthService {
     private twitchEventSubApiService: TwitchEventSubApiService,
     private userDataService: UserDataService,
     private authService: AuthService,
+    private logger: Logger,
   ) {}
 
   public getAuthLink(): GetAuthLinkResponseDTO {
     const state = generateRandomState(10);
     const url = 'https://id.twitch.tv/oauth2/authorize';
-    const states = ['channel:manage:redemptions'];
+    const states = ['channel:manage:redemptions', 'user:edit:broadcast'];
 
     const redirect_uri = this.configService.get('TWITCH_REDIRECT_URL');
     const client_id = this.configService.get('CLIENT_ID');
@@ -129,20 +130,26 @@ export class TwitchAuthService {
     }
 
     if (!foundUser.is_subscribed) {
-      await this.twitchEventSubApiService.createEventSubscription({
-        accessToken: twitchUserTokenData.access_token,
-        tokenType: capitalizeFirstLetter(twitchUserTokenData.token_type),
-        condition: {
-          broadcaster_user_id: foundTwitchUser.id,
-        },
-        transport: {
-          callback: this.configService.get('TWITCH_EVENT_SUB_CALLBACK'),
-          method: 'webhook',
-          secret: this.configService.get('TWITCH_EVENT_SUB_SECRET'),
-        },
-        type: 'channel.update',
-        version: 'beta',
-      });
+      try {
+        await this.twitchEventSubApiService.createEventSubscription({
+          accessToken: twitchUserTokenData.access_token,
+          tokenType: capitalizeFirstLetter(twitchUserTokenData.token_type),
+          condition: {
+            broadcaster_user_id: foundTwitchUser.id,
+          },
+          transport: {
+            callback: this.configService.get('TWITCH_EVENT_SUB_CALLBACK'),
+            method: 'webhook',
+            secret: this.configService.get('TWITCH_EVENT_SUB_SECRET'),
+          },
+          type: 'channel.update',
+          version: 'beta',
+        });
+      } catch (err) {
+        this.logger.error(
+          `Error happened when trying to subscribe user ${foundUser.twitch_name}`,
+        );
+      }
     }
 
     return tokens;
