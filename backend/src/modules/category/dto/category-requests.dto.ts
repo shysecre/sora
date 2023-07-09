@@ -1,5 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsNumber,
+  IsObject,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class GetTwitchCategoriesByNameRequestDTO {
   @IsString()
@@ -66,9 +73,29 @@ class AddCustomRewardToLocalCategoryItemRequestDTO {
   @IsArray({ each: true })
   categoryIds: string[];
 }
-
-export class CreateLocalCategoryItemRequestDTO {
+export class CreateLocalCategoryItemData {
   @IsString()
   @ApiProperty()
-  twitchRewardId: string;
+  twitchName: string;
+
+  @IsNumber()
+  @ApiProperty()
+  twitchCost: number;
+
+  @IsString()
+  @ApiProperty()
+  twitchBackgroundColor: string;
+
+  @IsString()
+  @ApiProperty()
+  twitchPrompt: string;
+}
+
+export class CreateLocalCategoryItemRequestDTO {
+  @IsObject()
+  @ApiProperty({
+    type: CreateLocalCategoryItemData,
+    isArray: true,
+  })
+  items: CreateLocalCategoryItemData[];
 }

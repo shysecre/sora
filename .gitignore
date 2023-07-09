@@ -2,6 +2,7 @@
 build
 node_modules
 frontend_old
+.next
 
 # ENVS
 .env

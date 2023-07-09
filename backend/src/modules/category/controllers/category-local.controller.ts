@@ -69,10 +69,7 @@ export class CategoryControllerLocal {
     @Body() body: CreateLocalCategoryItemRequestDTO,
     @GetUser() user: ParsedJwtUser,
   ) {
-    return this.categoryLocalService.createLocalCategoryItem(
-      user.id,
-      body.twitchRewardId,
-    );
+    return this.categoryLocalService.createLocalCategoryItem(user, body.items);
   }
 
   @Get('items')

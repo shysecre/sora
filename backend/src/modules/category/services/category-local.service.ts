@@ -4,13 +4,24 @@ import { LocalCategoryDataService } from '@modules/database/services/category-da
 import { LocalCategoryItemDataService } from '@modules/database/services/category-local-item-data.service';
 import { CategoryItemEntity } from '@modules/database/entities';
 import { DeepPartial } from 'typeorm';
-import { AddCustomRewardToLocalCategoryRequestDTO } from '../dto/category-requests.dto';
+import {
+  AddCustomRewardToLocalCategoryRequestDTO,
+  CreateLocalCategoryItemData,
+} from '../dto/category-requests.dto';
+import { ParsedJwtUser } from '@modules/auth/types/auth-service.types';
+import {
+  TwitchCustomRewardApiService,
+  TwitchUserApiService,
+} from '@modules/twitch/services';
+import { getCreds } from '@common/utils/get-user-creds-for-request.util';
 
 @Injectable()
 export class CategoryLocalService {
   constructor(
     private categoryDataService: LocalCategoryDataService,
     private categoryLocalItemDataService: LocalCategoryItemDataService,
+    private twitchCustomRewardApiService: TwitchCustomRewardApiService,
+    private twitchUserApiService: TwitchUserApiService,
   ) {}
 
   public createLocalCategory(body: CreateLocalCategoryServiceOptions) {
@@ -76,7 +87,9 @@ export class CategoryLocalService {
       const toUpdate: DeepPartial<CategoryItemEntity>[] = categoryItems.map(
         (element) => ({
           id: element.categoryItemId,
-          categories: element.categoryIds.map((element) => ({ id: element })),
+          categories: element.categoryIds.map((element) => ({
+            id: element,
+          })),
         }),
       );
 
@@ -90,11 +103,47 @@ export class CategoryLocalService {
     }
   }
 
-  public createLocalCategoryItem(userId: string, twitchRewardId: string) {
-    return this.categoryLocalItemDataService.createLocalCategoryItem(
-      userId,
-      twitchRewardId,
+  public async createLocalCategoryItem(
+    user: ParsedJwtUser,
+    twitchRewards: CreateLocalCategoryItemData[],
+  ) {
+    const existingCustomRewards =
+      await this.twitchUserApiService.getUserCustomRewards(getCreds(user));
+
+    const summ = existingCustomRewards.data.length + twitchRewards.length;
+
+    if (summ > 50)
+      throw new HttpException(
+        'Not enough space for new rewards, you need to delete rewards first',
+        HttpStatus.BAD_GATEWAY,
+      );
+
+    const createdRewards = await Promise.all(
+      twitchRewards.map(
+        ({ twitchCost, twitchName, twitchBackgroundColor, twitchPrompt }) =>
+          this.twitchCustomRewardApiService.createUserCustomReward({
+            customReward: {
+              cost: twitchCost,
+              title: twitchName,
+              prompt: twitchPrompt,
+              background_color: twitchBackgroundColor,
+              is_enabled: false,
+            },
+            ...getCreds(user),
+          }),
+      ),
     );
+
+    const createdLocalCategoryItems = await Promise.all(
+      createdRewards.map(({ data: [item] }) =>
+        this.categoryLocalItemDataService.createLocalCategoryItem(
+          user.id,
+          item.id,
+        ),
+      ),
+    );
+
+    return createdLocalCategoryItems;
   }
 
   public getLocalItemsByUserId(userId: string) {
