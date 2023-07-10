@@ -5,7 +5,7 @@
   "author": "sekkure <secreori@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start:back:dev": "cd backend && yarn start:dev",
-    "start:front:dev": "cd frontend & yarn dev"
+    "sbd": "cd backend && yarn start:dev",
+    "sfd": "cd frontend & yarn dev"
   }
 }
