@@ -33,9 +33,9 @@ export class TwitchAuthService {
   ) {}
 
   public getAuthLink(): GetAuthLinkResponseDTO {
-    const state = generateRandomState(10);
+    const state = generateRandomState(32);
     const url = 'https://id.twitch.tv/oauth2/authorize';
-    const states = ['channel:manage:redemptions', 'user:edit:broadcast'];
+    const states = ['channel:manage:redemptions'];
 
     const redirect_uri = this.configService.get('TWITCH_REDIRECT_URL');
     const client_id = this.configService.get('CLIENT_ID');

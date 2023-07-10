@@ -24,9 +24,11 @@ export class TwitchCategoryApiService extends RequestManager {
     const body = cursor
       ? {
           query: name,
+          first: 5,
           after: cursor,
         }
       : {
+          first: 5,
           query: name,
         };
 
