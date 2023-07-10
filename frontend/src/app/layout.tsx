@@ -1,3 +1,4 @@
+import Providers from "@/components/providers";
 import "./globals.css";
 import type { Metadata } from "next";
 import { Comfortaa } from "next/font/google";
@@ -22,7 +23,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={comfortaa.className}>{children}</body>
+      <Providers>
+        <body className={comfortaa.className}>{children}</body>
+      </Providers>
     </html>
   );
 }
