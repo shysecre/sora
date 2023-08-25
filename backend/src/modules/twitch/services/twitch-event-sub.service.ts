@@ -90,18 +90,20 @@ export class TwitchEventSubService {
     res.sendStatus(204);
 
     const foundUser = await this.userDataService.getByTwitchId(userId, {
-      categories: {
-        items: true,
+      relations: {
+        categories: {
+          items: true,
+        },
+        twitch_credentials: true,
       },
-      twitch_credentials: true,
     });
 
     foundUser.last_category = body.event.category_id;
 
     await this.userDataService.updateById(foundUser);
 
-    // if (!foundUser || body.event.category_id === foundUser.last_category)
-    //   return;
+    if (!foundUser || body.event.category_id === foundUser.last_category)
+      return;
 
     this.switchCategoryRewards(body, foundUser.categories, foundUser);
   }

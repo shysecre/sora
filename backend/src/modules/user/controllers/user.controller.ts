@@ -1,6 +1,5 @@
-import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 import { UserService } from '@modules/user/services/user.service';
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, SerializeOptions, UseGuards } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import {
   GetTwitchUserCustomRewardsResponseDTO,
@@ -8,14 +7,17 @@ import {
 } from '../dto/user-responses.dto';
 import { GetUser } from '@common/decorators/get-user.decorator';
 import { ParsedJwtUser } from '@modules/auth/types/auth-service.types';
+import { JwtTwitchGuard } from '@modules/auth/guards/jwt-twitch.guard';
+import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 
 @Controller('user')
-@UseGuards(JwtAuthGuard)
 @ApiTags('User')
 export class UserController {
   constructor(private userService: UserService) {}
 
   @Get()
+  @SerializeOptions({ type: GetUserByIdDTO })
+  @UseGuards(JwtAuthGuard)
   @ApiOkResponse({
     description: 'Return user object',
     type: GetUserByIdDTO,
@@ -29,6 +31,7 @@ export class UserController {
     description: "Return all user's custom rewards",
     type: GetTwitchUserCustomRewardsResponseDTO,
   })
+  @UseGuards(JwtTwitchGuard)
   public getUsersCustomRewards(
     @GetUser() user: ParsedJwtUser,
   ): Promise<GetTwitchUserCustomRewardsResponseDTO> {

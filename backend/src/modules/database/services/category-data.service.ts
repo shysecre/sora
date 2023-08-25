@@ -1,23 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { CategoryEntity } from '../entities';
-import { CategoryDataCreateLocalCategoryOptions } from '../types/category-data.types';
+import { DeepPartial } from 'typeorm';
 
 @Injectable()
 export class LocalCategoryDataService {
-  public createLocalCategory({
-    userId,
-    twitchId,
-    twitchBoxImage,
-    twitchName,
-  }: CategoryDataCreateLocalCategoryOptions) {
-    return CategoryEntity.create({
-      user: {
-        id: userId,
-      },
-      twitch_id: twitchId,
-      twitch_name: twitchName,
-      twitch_box_image: twitchBoxImage,
-    }).save();
+  public createLocalCategory(items: DeepPartial<CategoryEntity>[]) {
+    return CategoryEntity.save(CategoryEntity.create(items));
   }
 
   public getLocalCategoriesByUserId(userId: string) {
@@ -29,6 +17,9 @@ export class LocalCategoryDataService {
       },
       relations: {
         items: true,
+      },
+      order: {
+        twitch_name: 'asc',
       },
     });
   }

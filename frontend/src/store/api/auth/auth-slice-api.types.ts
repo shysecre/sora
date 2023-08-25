@@ -16,3 +16,7 @@ export interface RefreshUserAccessTokenResponse {
   accessToken: string;
   refreshToken: string;
 }
+
+export interface GetAuthLinkOptions {
+  lng: string;
+}

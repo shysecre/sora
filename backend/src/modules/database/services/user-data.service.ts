@@ -1,30 +1,36 @@
 import { UserEntity } from '@modules/database/entities';
 import { Injectable } from '@nestjs/common';
-import { DeepPartial, FindOptionsRelations } from 'typeorm';
+import { DeepPartial, FindOptionsRelations, FindOptionsSelect } from 'typeorm';
 
 @Injectable()
 export class UserDataService {
   public getUserById(
     id: string,
-    relations?: FindOptionsRelations<UserEntity>,
+    options?: {
+      relations?: FindOptionsRelations<UserEntity>;
+      select?: FindOptionsSelect<UserEntity>;
+    },
   ): Promise<UserEntity> {
     return UserEntity.findOne({
       where: {
         id,
       },
-      relations,
+      ...options,
     });
   }
 
   public getByTwitchId(
     id: string,
-    relations?: FindOptionsRelations<UserEntity>,
+    options?: {
+      relations?: FindOptionsRelations<UserEntity>;
+      select?: FindOptionsSelect<UserEntity>;
+    },
   ): Promise<UserEntity> {
     return UserEntity.findOne({
       where: {
         twitch_id: id,
       },
-      relations,
+      ...options,
     });
   }
 

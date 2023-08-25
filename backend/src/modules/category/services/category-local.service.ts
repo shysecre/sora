@@ -2,10 +2,11 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateLocalCategoryServiceOptions } from '../types/category-service.types';
 import { LocalCategoryDataService } from '@modules/database/services/category-data.service';
 import { LocalCategoryItemDataService } from '@modules/database/services/category-local-item-data.service';
-import { CategoryItemEntity } from '@modules/database/entities';
+import { CategoryEntity, CategoryItemEntity } from '@modules/database/entities';
 import { DeepPartial } from 'typeorm';
 import {
   AddCustomRewardToLocalCategoryRequestDTO,
+  AddLocalItemsToLocalCategory,
   CreateLocalCategoryItemData,
 } from '../dto/category-requests.dto';
 import { ParsedJwtUser } from '@modules/auth/types/auth-service.types';
@@ -24,8 +25,38 @@ export class CategoryLocalService {
     private twitchUserApiService: TwitchUserApiService,
   ) {}
 
-  public createLocalCategory(body: CreateLocalCategoryServiceOptions) {
-    return this.categoryDataService.createLocalCategory(body);
+  public async addLocalItemsToCategory({
+    categoryId,
+    rewards,
+  }: AddLocalItemsToLocalCategory) {
+    try {
+      await CategoryEntity.save({
+        id: categoryId,
+        items: rewards.map((reward) => ({ id: reward })),
+      });
+    } catch (err) {
+      console.log(err);
+      throw new HttpException(
+        'Unknown error occure when trying to set category id to local items',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  public createLocalCategory({
+    data,
+    userId,
+  }: CreateLocalCategoryServiceOptions) {
+    const formdData: DeepPartial<CategoryEntity>[] = data.map((category) => ({
+      twitch_id: category.twitchId,
+      twitch_name: category.twitchName,
+      twitch_box_image: category.twitchBoxImage,
+      user: {
+        id: userId,
+      },
+    }));
+
+    return this.categoryDataService.createLocalCategory(formdData);
   }
 
   public getLocalCategoriesByUserId(userId: string) {
@@ -107,43 +138,47 @@ export class CategoryLocalService {
     user: ParsedJwtUser,
     twitchRewards: CreateLocalCategoryItemData[],
   ) {
-    const existingCustomRewards =
-      await this.twitchUserApiService.getUserCustomRewards(getCreds(user));
+    try {
+      const existingCustomRewards =
+        await this.twitchUserApiService.getUserCustomRewards(getCreds(user));
 
-    const summ = existingCustomRewards.data.length + twitchRewards.length;
+      const summ = existingCustomRewards.data.length + twitchRewards.length;
 
-    if (summ > 50)
-      throw new HttpException(
-        'Not enough space for new rewards, you need to delete rewards first',
-        HttpStatus.BAD_GATEWAY,
-      );
+      if (summ > 50)
+        throw new HttpException(
+          'Not enough space for new rewards, you need to delete rewards first',
+          HttpStatus.BAD_GATEWAY,
+        );
 
-    const createdRewards = await Promise.all(
-      twitchRewards.map(
-        ({ twitchCost, twitchName, twitchBackgroundColor, twitchPrompt }) =>
+      const createdRewards = await Promise.all(
+        twitchRewards.map(({ twitchCost, twitchName }) =>
           this.twitchCustomRewardApiService.createUserCustomReward({
             customReward: {
               cost: twitchCost,
               title: twitchName,
-              prompt: twitchPrompt,
-              background_color: twitchBackgroundColor,
               is_enabled: false,
             },
             ...getCreds(user),
           }),
-      ),
-    );
-
-    const createdLocalCategoryItems = await Promise.all(
-      createdRewards.map(({ data: [item] }) =>
-        this.categoryLocalItemDataService.createLocalCategoryItem(
-          user.id,
-          item.id,
         ),
-      ),
-    );
+      );
 
-    return createdLocalCategoryItems;
+      const createdLocalCategoryItems = await Promise.all(
+        createdRewards.map(({ data: [item] }) =>
+          this.categoryLocalItemDataService.createLocalCategoryItem(
+            user.id,
+            item.id,
+          ),
+        ),
+      );
+
+      return createdLocalCategoryItems;
+    } catch (err) {
+      throw new HttpException(
+        'You need to delete rewards that you try to copy',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 
   public getLocalItemsByUserId(userId: string) {

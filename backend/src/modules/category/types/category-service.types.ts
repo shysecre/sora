@@ -1,5 +1,6 @@
+import { CreateLocalCategoryDataDTO } from '@modules/category/dto/category-requests.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsArray, IsOptional, IsString } from 'class-validator';
 
 export class GetCategoriesByNameServiceOptions {
   @IsString()
@@ -21,17 +22,12 @@ export class GetCategoriesByNameServiceOptions {
 }
 
 export class CreateLocalCategoryServiceOptions {
-  @IsString()
-  @ApiProperty()
-  twitchName: string;
-
-  @IsString()
-  @ApiProperty()
-  twitchId: string;
-
-  @IsString()
-  @ApiProperty()
-  twitchBoxImage: string;
+  @IsArray()
+  @ApiProperty({
+    isArray: true,
+    type: CreateLocalCategoryDataDTO,
+  })
+  data: CreateLocalCategoryDataDTO[];
 
   @IsString()
   @ApiProperty()

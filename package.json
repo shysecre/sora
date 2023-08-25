@@ -7,5 +7,8 @@
   "scripts": {
     "sbd": "cd backend && yarn start:dev",
     "sfd": "cd frontend & yarn dev"
+  },
+  "dependencies": {
+    "formik": "^2.4.3"
   }
 }

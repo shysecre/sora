@@ -1,14 +1,33 @@
 import { TwitchApiCustomReward } from '@modules/twitch/types/twitch-api.types';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsString, IsUUID } from 'class-validator';
+
+class GetTwitchUserCustomRewardTwitchReward extends TwitchApiCustomReward {
+  @ApiProperty()
+  @IsBoolean()
+  isTwitchReward: boolean;
+}
+class GetTwitchUserCustomRewardManagebleReward extends TwitchApiCustomReward {
+  @ApiProperty()
+  @IsBoolean()
+  isManagebleReward: boolean;
+}
+class GetTwitchUserCustomRewardLocalReward extends TwitchApiCustomReward {
+  @ApiProperty()
+  @IsBoolean()
+  isLocalReward: boolean;
+
+  @ApiProperty()
+  @IsUUID()
+  local_id: string;
+}
 
 export class GetTwitchUserCustomRewardsResponseDTO {
-  @IsArray({ each: true })
-  @ApiProperty({
-    isArray: true,
-    type: TwitchApiCustomReward,
-  })
-  data: TwitchApiCustomReward[];
+  data: (
+    | GetTwitchUserCustomRewardTwitchReward
+    | GetTwitchUserCustomRewardManagebleReward
+    | GetTwitchUserCustomRewardLocalReward
+  )[];
 }
 
 export class GetUserByIdDTO {

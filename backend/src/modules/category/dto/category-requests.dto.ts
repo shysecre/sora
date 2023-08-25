@@ -3,7 +3,6 @@ import {
   IsArray,
   IsNotEmpty,
   IsNumber,
-  IsObject,
   IsOptional,
   IsString,
 } from 'class-validator';
@@ -25,7 +24,7 @@ export class GetTwitchCategoriesByNameRequestDTO {
   cursor?: string;
 }
 
-export class CreateLocalCategoryRequestDTO {
+export class CreateLocalCategoryDataDTO {
   @IsString()
   @IsNotEmpty()
   @ApiProperty({
@@ -46,6 +45,31 @@ export class CreateLocalCategoryRequestDTO {
     description: 'Image of the category',
   })
   twitchBoxImage: string;
+}
+
+export class CreateLocalCategoryRequestDTO {
+  @IsArray()
+  @ApiProperty({
+    isArray: true,
+    type: CreateLocalCategoryDataDTO,
+  })
+  data: CreateLocalCategoryDataDTO[];
+}
+
+export class AddLocalItemsToLocalCategory {
+  @ApiProperty({
+    description: 'Local category id',
+  })
+  @IsString()
+  categoryId: string;
+
+  @ApiProperty({
+    isArray: true,
+    description: 'Local rewards',
+    type: () => String,
+  })
+  @IsArray()
+  rewards: string[];
 }
 
 export class AddCustomRewardToLocalCategoryRequestDTO {
@@ -81,18 +105,10 @@ export class CreateLocalCategoryItemData {
   @IsNumber()
   @ApiProperty()
   twitchCost: number;
-
-  @IsString()
-  @ApiProperty()
-  twitchBackgroundColor: string;
-
-  @IsString()
-  @ApiProperty()
-  twitchPrompt: string;
 }
 
 export class CreateLocalCategoryItemRequestDTO {
-  @IsObject()
+  @IsArray()
   @ApiProperty({
     type: CreateLocalCategoryItemData,
     isArray: true,

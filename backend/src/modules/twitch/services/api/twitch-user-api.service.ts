@@ -5,8 +5,8 @@ import {
   GetTwitchApiUserOptions,
   GetTwtichApiUserResponse,
   GetTwitchApiUserCustomRewardsOptions,
+  GetTwitchUserCustomRewardsResponse,
 } from '@modules/twitch/types/twitch-api.types';
-import { GetTwitchUserCustomRewardsResponseDTO } from '@modules/user/dto/user-responses.dto';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
@@ -35,10 +35,12 @@ export class TwitchUserApiService extends RequestManager {
     accessToken,
     tokenType,
     twitchId,
-  }: GetTwitchApiUserCustomRewardsOptions): Promise<GetTwitchUserCustomRewardsResponseDTO> {
+    only_manageable_rewards = false,
+  }: GetTwitchApiUserCustomRewardsOptions): Promise<GetTwitchUserCustomRewardsResponse> {
     return this.get('channel_points/custom_rewards', {
       body: {
         broadcaster_id: twitchId,
+        only_manageable_rewards,
       },
       config: {
         headers: {

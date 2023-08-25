@@ -19,4 +19,7 @@ export class UserTwitchCredentialsEntity extends EnhancedBaseEntity {
 
   @Column()
   token_type: string;
+
+  @Column()
+  expire_date: string;
 }

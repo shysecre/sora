@@ -3,13 +3,13 @@ import { GetUserCustomRewards, GetUserResponse } from "./user-slice-api.types";
 
 export const userSliceApi = baseSliceApi.injectEndpoints({
   endpoints: (builder) => ({
-    getUser: builder.mutation<GetUserResponse, unknown>({
+    getUser: builder.mutation<GetUserResponse, void>({
       query: () => ({
         url: "/user",
         method: "GET",
       }),
     }),
-    getUserCustomRewards: builder.mutation<GetUserCustomRewards, unknown>({
+    getUserCustomRewards: builder.mutation<GetUserCustomRewards, void>({
       query: () => ({
         url: "/user/custom-rewards",
         method: "GET",

@@ -7,6 +7,7 @@ import { JwtStrategy } from '@modules/auth/strategies/jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DatabaseModule } from '@modules/database/database.module';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
+import { JwtTwitchStrategy } from '@modules/auth/strategies/jwt-twitch.strategy';
 
 @Module({
   imports: [
@@ -22,6 +23,6 @@ import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
     TwitchModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, JwtRefreshStrategy],
+  providers: [AuthService, JwtStrategy, JwtRefreshStrategy, JwtTwitchStrategy],
 })
 export class AuthModule {}

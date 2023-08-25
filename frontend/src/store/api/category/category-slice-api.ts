@@ -1,20 +1,25 @@
-import { baseSliceApi } from "../base/base-slice.api";
+import {
+  CreateLocalCategoryOptions,
+  CreateLocalCategoryResponse,
+  GetCategoriesByQueryResponse,
+} from "@/store/api/category/category-slice.types"
+import { baseSliceApi } from "../base/base-slice.api"
 
 export const categorySliceApi = baseSliceApi.injectEndpoints({
   endpoints: (builder) => ({
-    getCategory: builder.mutation<
-      { data: TwitchCategory[]; pagination: string },
-      { name: string }
+    getCategoriesByQuery: builder.mutation<
+      GetCategoriesByQueryResponse,
+      string
     >({
-      query: (params) => ({
-        url: "/twitch/category",
+      query: (name) => ({
+        url: "/twitch/categories",
         method: "GET",
-        params,
+        params: { name },
       }),
     }),
     createCategory: builder.mutation<
-      unknown,
-      { twitchName: string; twitchId: string; twitchBoxImage: string }
+      CreateLocalCategoryResponse[],
+      CreateLocalCategoryOptions
     >({
       query: (body) => ({
         url: "/local/category",
@@ -22,14 +27,28 @@ export const categorySliceApi = baseSliceApi.injectEndpoints({
         body,
       }),
     }),
+    addRewardsToCategory: builder.mutation<
+      void,
+      { categoryId: string; rewards: string[] }
+    >({
+      query: (body) => ({
+        url: "/local/category",
+        method: "PATCH",
+        body,
+      }),
+    }),
+    getLocalCategories: builder.mutation<CreateLocalCategoryResponse[], void>({
+      query: () => ({
+        url: "/local/categories",
+        method: "GET",
+      }),
+    }),
   }),
-});
+})
 
-export const { useGetCategoryMutation, useCreateCategoryMutation } =
-  categorySliceApi;
-
-export interface TwitchCategory {
-  id: string;
-  name: string;
-  box_art_url: string;
-}
+export const {
+  useGetCategoriesByQueryMutation,
+  useCreateCategoryMutation,
+  useGetLocalCategoriesMutation,
+  useAddRewardsToCategoryMutation,
+} = categorySliceApi

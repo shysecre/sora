@@ -9,7 +9,7 @@ import { UserDataService } from '@modules/database/services/user-data.service';
 import { AuthService } from '@modules/auth/services/auth.service';
 import { TwitchAuthServiceProccessAuthReturn } from '../types/twitch-auth-service.types';
 import { AuthServiceCreateTokensReturn } from '@modules/auth/types/auth-service.types';
-import { hash } from '@common/utils/hashes.util';
+import { decrypt, hash } from '@common/utils/hashes.util';
 import { generateRandomState } from '@common/utils/generate-random-state.util';
 import { TwitchAuthApiService } from './api/twitch-auth-api.service';
 import { UserEntity } from '@modules/database/entities';
@@ -32,12 +32,15 @@ export class TwitchAuthService {
     private logger: Logger,
   ) {}
 
-  public getAuthLink(): GetAuthLinkResponseDTO {
+  public getAuthLink(lng: string): GetAuthLinkResponseDTO {
     const state = generateRandomState(32);
     const url = 'https://id.twitch.tv/oauth2/authorize';
     const states = ['channel:manage:redemptions'];
 
-    const redirect_uri = this.configService.get('TWITCH_REDIRECT_URL');
+    const redirect_uri: string = this.configService
+      .get<string>('TWITCH_REDIRECT_URL')
+      .replace('{lng}', lng);
+
     const client_id = this.configService.get('CLIENT_ID');
 
     const searchParams = new URLSearchParams({
@@ -57,9 +60,9 @@ export class TwitchAuthService {
   public async processAuth(
     body: ProcessAuthDTO,
   ): Promise<TwitchAuthServiceProccessAuthReturn> {
-    const twitchUserTokenData = await this.twitchAuthApiService.getUserToken(
-      body.code,
-    );
+    const twitchUserTokenData = await this.twitchAuthApiService
+      .getUserToken(body.code)
+      .catch(console.log);
 
     if (!twitchUserTokenData) {
       throw new HttpException("Can't auth user", HttpStatus.BAD_GATEWAY);
@@ -90,7 +93,11 @@ export class TwitchAuthService {
 
     let foundUser = await this.userDataService.getByTwitchId(
       foundTwitchUser.id,
-      { twitch_credentials: true },
+      {
+        relations: {
+          twitch_credentials: true,
+        },
+      },
     );
 
     let tokens: AuthServiceCreateTokensReturn = null;
@@ -113,11 +120,13 @@ export class TwitchAuthService {
     } else {
       foundUser.twitch_image = foundTwitchUser.profile_image_url;
       foundUser.twitch_name = foundTwitchUser.display_name;
+      foundUser.last_category = foundUserChannel.game_id;
+
       foundUser.twitch_credentials.access_token = formdCredentials.access_token;
       foundUser.twitch_credentials.refresh_token =
         formdCredentials.refresh_token;
       foundUser.twitch_credentials.token_type = formdCredentials.token_type;
-      foundUser.last_category = foundUserChannel.game_id;
+      foundUser.twitch_credentials.expire_date = formdCredentials.expire_date;
 
       tokens = this.authService.createTokens(foundUser.id);
 
@@ -153,5 +162,74 @@ export class TwitchAuthService {
     }
 
     return tokens;
+  }
+
+  public async validateTwitchAccessToken(user: UserEntity) {
+    const validateResult = {
+      isValid: false,
+      tokens: {
+        accessToken: null,
+        refreshToken: null,
+        tokenType: null,
+      },
+    };
+
+    validateResult.tokens = {
+      accessToken: decrypt(user.twitch_credentials.access_token),
+      refreshToken: decrypt(user.twitch_credentials.refresh_token),
+      tokenType: capitalizeFirstLetter(
+        decrypt(user.twitch_credentials.token_type),
+      ),
+    };
+
+    const currentDate = new Date();
+    const expireDate = new Date(user.twitch_credentials.expire_date);
+
+    const leftTime = expireDate.getTime() - currentDate.getTime();
+
+    if (
+      currentDate.getTime() >= expireDate.getTime() ||
+      leftTime < 1000 * 60 * 2
+    ) {
+      const refreshedToken = await this.twitchAuthApiService
+        .refreshUserAccessToken(validateResult.tokens.refreshToken)
+        .then((res) => {
+          validateResult.isValid = true;
+
+          return res;
+        })
+        .catch(() => {
+          validateResult.isValid = false;
+        });
+
+      if (!refreshedToken) return validateResult;
+
+      validateResult.tokens = {
+        accessToken: refreshedToken.access_token,
+        refreshToken: refreshedToken.refresh_token,
+        tokenType: refreshedToken.token_type,
+      };
+
+      const formdCredentials = fomdCredentials(refreshedToken);
+
+      (user.twitch_credentials.access_token = formdCredentials.access_token),
+        (user.twitch_credentials.refresh_token =
+          formdCredentials.refresh_token),
+        (user.twitch_credentials.token_type = formdCredentials.token_type);
+      user.twitch_credentials.expire_date = formdCredentials.expire_date;
+
+      await UserEntity.save(user);
+    } else {
+      await this.twitchAuthApiService
+        .validateUserAccessToken(validateResult.tokens.accessToken)
+        .then(() => {
+          validateResult.isValid = true;
+        })
+        .catch(() => {
+          validateResult.isValid = false;
+        });
+    }
+
+    return validateResult;
   }
 }

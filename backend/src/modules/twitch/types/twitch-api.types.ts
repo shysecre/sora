@@ -27,6 +27,10 @@ export class GetTwitchApiUserCustomRewardsOptions extends INCLUDE_AUTH {
   @IsString()
   @ApiProperty()
   twitchId: string;
+
+  @IsBoolean()
+  @ApiProperty()
+  only_manageable_rewards?: boolean;
 }
 
 export class GetTwitchApiCategoriesByNameOptions extends INCLUDE_AUTH {
@@ -480,4 +484,13 @@ export class UpdateUserCustomRewardsOptions extends INCLUDE_AUTH {
     type: CustomRewardBaseUpdate,
   })
   body: CustomRewardBaseUpdate;
+}
+
+export class GetTwitchUserCustomRewardsResponse {
+  @IsArray({ each: true })
+  @ApiProperty({
+    isArray: true,
+    type: TwitchApiCustomReward,
+  })
+  data: TwitchApiCustomReward[];
 }

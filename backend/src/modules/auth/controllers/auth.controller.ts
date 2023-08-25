@@ -23,8 +23,8 @@ export class AuthController {
     description: 'Return auth link that user must be redirected to',
     type: GetAuthLinkResponseDTO,
   })
-  public getAuthLink(): GetAuthLinkResponseDTO {
-    return this.twitchAuthService.getAuthLink();
+  public getAuthLink(@Query() query: { lng: string }): GetAuthLinkResponseDTO {
+    return this.twitchAuthService.getAuthLink(query.lng);
   }
 
   @Get('success')

@@ -16,10 +16,12 @@ export class TwitchAuthApiService extends RequestManager {
     super(axios, { baseURL: 'https://id.twitch.tv/oauth2' });
   }
 
-  public async getUserToken(code: string): Promise<GetUserTokenResponse> {
+  public getUserToken(code: string): Promise<GetUserTokenResponse> {
     const client_id = this.configService.get('CLIENT_ID');
     const client_secret = this.configService.get('CLIENT_SECRET');
-    const redirect_uri = this.configService.get('TWITCH_REDIRECT_URL');
+    const redirect_uri = this.configService
+      .get<string>('TWITCH_REDIRECT_URL')
+      .replace('{lng}', 'en');
 
     return this.post<GetUserTokenResponse, GetUserTokenOptions>('token', {
       body: {
@@ -35,7 +37,17 @@ export class TwitchAuthApiService extends RequestManager {
     });
   }
 
-  public async refreshUserAccessToken(
+  public validateUserAccessToken(accessToken: string) {
+    return this.get('validate', {
+      config: {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    });
+  }
+
+  public refreshUserAccessToken(
     refreshToken: string,
   ): Promise<RefreshUserAccessTokenResponse> {
     const client_id = this.configService.get('CLIENT_ID');

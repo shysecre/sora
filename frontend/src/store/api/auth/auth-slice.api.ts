@@ -2,18 +2,27 @@ import { baseSliceApi } from "../base/base-slice.api";
 import {
   AuthUserWithCodeOptions,
   AuthUserWithCodeResponse,
+  GetAuthLinkOptions,
   GetAuthLinkResponse,
 } from "./auth-slice-api.types";
 
 export const authSliceApi = baseSliceApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAuthLink: builder.mutation<GetAuthLinkResponse, unknown>({
-      query: () => ({ url: "/auth", method: "GET" }),
+    getAuthLink: builder.mutation<GetAuthLinkResponse, GetAuthLinkOptions>({
+      query: ({ lng }) => ({ url: "/auth", method: "GET", params: { lng } }),
     }),
-    authUserWithCode: builder.mutation<AuthUserWithCodeResponse, AuthUserWithCodeOptions>({
-      query: ({ code }) => ({ url: "/auth/success", method: "GET", params: { code } }),
+    authUserWithCode: builder.mutation<
+      AuthUserWithCodeResponse,
+      AuthUserWithCodeOptions
+    >({
+      query: ({ code }) => ({
+        url: "/auth/success",
+        method: "GET",
+        params: { code },
+      }),
     }),
   }),
 });
 
-export const { useAuthUserWithCodeMutation, useGetAuthLinkMutation } = authSliceApi;
+export const { useAuthUserWithCodeMutation, useGetAuthLinkMutation } =
+  authSliceApi;

@@ -5,6 +5,7 @@ export const fomdCredentials = ({
   access_token,
   refresh_token,
   token_type,
+  expires_in,
 }: GetUserTokenResponse) => {
   access_token = encrypt(access_token);
   refresh_token = encrypt(refresh_token);
@@ -14,5 +15,6 @@ export const fomdCredentials = ({
     access_token,
     refresh_token,
     token_type,
+    expire_date: new Date(Date.now() + expires_in * 1000).toString(),
   };
 };
