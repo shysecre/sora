@@ -1,7 +1,7 @@
 "use client"
 
 import classNames from "classnames"
-import Image from "next/image"
+import Image, { StaticImageData } from "next/image"
 import { ButtonHTMLAttributes, DetailedHTMLProps } from "react"
 
 interface Props
@@ -12,15 +12,16 @@ interface Props
   icon?: {
     height: number
     width: number
-    src: string
+    src: string | StaticImageData
   }
 }
 
-export default function Button({ icon, children, className, ...props }: Props) {
+export default function Button({ icon, children, className, ...props }: Readonly<Props>) {
   return (
     <button
       className={classNames(
         "flex gap-2 items-center justify-center",
+        "border-b-[#31313E] border-l-[#31313E] border-b-4 border-l-4 bg-less-dark rounded-[20px] p-4 ",
         className
       )}
       {...props}

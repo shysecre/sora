@@ -44,6 +44,13 @@ export class AuthService {
     return tokens;
   }
 
+  public verifyToken(token: string) {
+    return this.jwtService.verifyAsync(token, {
+      secret: this.configService.get('JWT_SECRET'),
+
+    });
+  }
+
   public createTokens(userId: string): AuthServiceCreateTokensReturn {
     const accessToken = this.jwtService.sign(
       {

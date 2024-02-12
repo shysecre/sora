@@ -1,14 +1,11 @@
 {
   "name": "sora",
-  "version": "0.0.1",
+  "version": "1.0",
   "repository": "https://github.com/sekkure/sora.git",
   "author": "sekkure <secreori@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "sbd": "cd backend && yarn start:dev",
+    "sbd": "cd backend & yarn start:dev",
     "sfd": "cd frontend & yarn dev"
-  },
-  "dependencies": {
-    "formik": "^2.4.3"
   }
 }

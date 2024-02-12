@@ -50,4 +50,19 @@ export class AuthController {
       request.user['refreshToken'],
     );
   }
+
+  @Get('verify')
+  @ApiOkResponse({
+    description:
+      'Return boolean value that determines if provided token is expired or not',
+  })
+  public async verifyToken(@Query('token') token: string) {
+    try {
+      await this.authService.verifyToken(token);
+
+      return { isExpired: false };
+    } catch (err) {
+      return { isExpired: true };
+    }
+  }
 }

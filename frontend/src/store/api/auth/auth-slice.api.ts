@@ -1,10 +1,11 @@
-import { baseSliceApi } from "../base/base-slice.api";
+import { baseSliceApi } from "../base/base-slice.api"
 import {
   AuthUserWithCodeOptions,
   AuthUserWithCodeResponse,
   GetAuthLinkOptions,
   GetAuthLinkResponse,
-} from "./auth-slice-api.types";
+  VerifyTokenResponse,
+} from "./auth-slice-api.types"
 
 export const authSliceApi = baseSliceApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -21,8 +22,18 @@ export const authSliceApi = baseSliceApi.injectEndpoints({
         params: { code },
       }),
     }),
+    verifyToken: builder.mutation<VerifyTokenResponse, string>({
+      query: (token) => ({
+        url: "/auth/verify",
+        method: "GET",
+        params: { token },
+      }),
+    }),
   }),
-});
+})
 
-export const { useAuthUserWithCodeMutation, useGetAuthLinkMutation } =
-  authSliceApi;
+export const {
+  useAuthUserWithCodeMutation,
+  useGetAuthLinkMutation,
+  useVerifyTokenMutation,
+} = authSliceApi

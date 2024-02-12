@@ -43,7 +43,7 @@ export class CategoryControllerLocal {
   @UseGuards(JwtAuthGuard)
   @ApiOkResponse({ description: 'Set local items to local category' })
   public addLocalItemsToCategory(@Body() body: AddLocalItemsToLocalCategory) {
-    return this.categoryLocalService.addLocalItemsToCategory(body)
+    return this.categoryLocalService.addLocalItemsToCategory(body);
   }
 
   @Patch('item')

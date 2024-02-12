@@ -1,9 +1,0 @@
-{
-  "root.page_header": "ваш инструмент для автоматизации Twitch наград",
-  "root.auth_button_text": "Авторизоваться через Twitch",
-  "root.guide_label": "Гайд",
-  "profile.page_title": "Профиль",
-  "profile.search_category.input_text": "поиск...",
-  "profile.search_category.input_label": "Найти категорию",
-  "auth.processing": "Проводим авторизацию..."
-}

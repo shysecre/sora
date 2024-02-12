@@ -1,11 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { CategoryEntity } from '../entities';
-import { DeepPartial } from 'typeorm';
+import { DeepPartial, In } from 'typeorm';
 
 @Injectable()
 export class LocalCategoryDataService {
   public createLocalCategory(items: DeepPartial<CategoryEntity>[]) {
     return CategoryEntity.save(CategoryEntity.create(items));
+  }
+
+  public getLocalCategoriesByTwitchIds(ids: string[]) {
+    return CategoryEntity.find({
+      where: {
+        twitch_id: In(ids),
+      },
+    });
   }
 
   public getLocalCategoriesByUserId(userId: string) {

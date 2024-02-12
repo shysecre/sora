@@ -10,6 +10,7 @@ module.exports = {
       colors: {
         "dark-bg": "#09090b",
         "less-dark": "#1a1a21",
+        "above-less-dark": "#31313E",
       },
       animation: {
         typing: "typing 1s var(--easing,steps(0)), blink 1.5s infinite",

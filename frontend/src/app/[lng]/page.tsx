@@ -1,19 +1,29 @@
-import AuthSection from "@/app/[lng]/components/auth-section"
-import GuideIframe from "@/app/[lng]/components/guide-iframe"
-import TitleHeader from "@/app/[lng]/components/title-header"
+import AuthSection from "@/components/root/auth-section"
+import GuideIframe from "@/components/root/guide-iframe"
+import TitleHeader from "@/components/root/title-header"
+import initTranslations from "@/i18n"
 
-type Props = {
-  params: {
-    lng: string
-  }
-}
+import { TranslationsProvider } from "@/providers/providers"
+import { LanguageProp } from "@/typings/props.typings"
 
-export default function Home({ params: { lng } }: Props) {
+const i18namespaces = ["root"]
+
+export default async function Home({
+  params: { lng },
+}: Readonly<LanguageProp>) {
+  const { t, resources } = await initTranslations(lng, i18namespaces)
+
   return (
-    <div className="bg-dark-bg flex gap-24 items-center flex-col justify-center">
-      <TitleHeader lng={lng} />
-      <AuthSection lng={lng} />
-      <GuideIframe lng={lng} />
-    </div>
+    <TranslationsProvider
+      locale={lng}
+      namespaces={i18namespaces}
+      resources={resources}
+    >
+      <div className="bg-dark-bg h-screen flex flex-col items-center justify-center gap-24">
+        <TitleHeader t={t} />
+        <AuthSection />
+        <GuideIframe t={t} />
+      </div>
+    </TranslationsProvider>
   )
 }

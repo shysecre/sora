@@ -1,9 +1,0 @@
-{
-  "root.page_header": "your way to automate twitch rewards",
-  "root.auth_button_text": "Auth using twitch",
-  "root.guide_label": "Guide",
-  "profile.page_title": "Profile page",
-  "profile.search_category.input_text": "search...",
-  "profile.search_category.input_label": "Search category",
-  "auth.processing": "Processing your authorization..."
-}

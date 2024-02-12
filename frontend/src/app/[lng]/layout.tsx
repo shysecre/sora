@@ -1,20 +1,16 @@
-import Providers from "@/components/providers"
+import Providers from "@/providers/providers"
 import "./globals.css"
 import type { Metadata } from "next"
-import { Montserrat } from "next/font/google"
-import { languages } from "@/i18n/settings"
-
-const montserrat = Montserrat({
-  weight: ["500"],
-  subsets: ["cyrillic-ext", "latin-ext"],
-})
+import i18nConfig from "@/../i18nConfig"
+import { dir } from "i18next"
+import { montserrat } from "@/common/fonts"
 
 export const metadata: Metadata = {
   title: "Sora",
   applicationName: "Sora",
   authors: [{ name: "Secre", url: "https://github.com/shysecre" }],
   description:
-    "Sora - service that helps you to manage your channel points rewards on twitch!",
+    "Sora - service that helps you manage your channel points rewards on twitch!",
   icons: [
     "https://i.pinimg.com/564x/bf/d3/9a/bfd39a3a620a253a30520ceeb84eacae.jpg",
   ],
@@ -28,17 +24,22 @@ export const metadata: Metadata = {
   ],
 }
 
-export async function generateStaticParams() {
-  return languages.map((lng) => ({ lng }))
+export function generateStaticParams() {
+  return i18nConfig.locales.map((lng: string) => ({ lng }))
 }
 
-export default function RootLayout({
-  children,
-}: {
+type Props = Readonly<{
   children: React.ReactNode
-}) {
+  params: { lng: string }
+}>
+
+export default function RootLayout({ children, params }: Props) {
   return (
-    <html lang="en" className="no-scrollbar overflow-hidden">
+    <html
+      lang={params.lng}
+      dir={dir(params.lng)}
+      className="no-scrollbar overflow-hidden"
+    >
       <Providers>
         <body className={montserrat.className}>{children}</body>
       </Providers>

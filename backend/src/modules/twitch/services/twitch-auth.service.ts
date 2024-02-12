@@ -46,6 +46,7 @@ export class TwitchAuthService {
     const searchParams = new URLSearchParams({
       response_type: 'code',
       scope: states.join(' '),
+      force_verify: 'true',
       redirect_uri,
       client_id,
       state,
@@ -60,9 +61,9 @@ export class TwitchAuthService {
   public async processAuth(
     body: ProcessAuthDTO,
   ): Promise<TwitchAuthServiceProccessAuthReturn> {
-    const twitchUserTokenData = await this.twitchAuthApiService
-      .getUserToken(body.code)
-      .catch(console.log);
+    const twitchUserTokenData = await this.twitchAuthApiService.getUserToken(
+      body.code,
+    );
 
     if (!twitchUserTokenData) {
       throw new HttpException("Can't auth user", HttpStatus.BAD_GATEWAY);
@@ -212,13 +213,13 @@ export class TwitchAuthService {
 
       const formdCredentials = fomdCredentials(refreshedToken);
 
-      (user.twitch_credentials.access_token = formdCredentials.access_token),
-        (user.twitch_credentials.refresh_token =
-          formdCredentials.refresh_token),
-        (user.twitch_credentials.token_type = formdCredentials.token_type);
-      user.twitch_credentials.expire_date = formdCredentials.expire_date;
-
-      await UserEntity.save(user);
+      await UserEntity.save({
+        ...user,
+        twitch_credentials: {
+          ...user.twitch_credentials,
+          ...formdCredentials,
+        },
+      });
     } else {
       await this.twitchAuthApiService
         .validateUserAccessToken(validateResult.tokens.accessToken)

@@ -7,6 +7,7 @@ import { DeepPartial } from 'typeorm';
 import {
   AddCustomRewardToLocalCategoryRequestDTO,
   AddLocalItemsToLocalCategory,
+  CreateLocalCategoryDataDTO,
   CreateLocalCategoryItemData,
 } from '../dto/category-requests.dto';
 import { ParsedJwtUser } from '@modules/auth/types/auth-service.types';
@@ -43,18 +44,36 @@ export class CategoryLocalService {
     }
   }
 
-  public createLocalCategory({
+  public async createLocalCategory({
     data,
     userId,
   }: CreateLocalCategoryServiceOptions) {
-    const formdData: DeepPartial<CategoryEntity>[] = data.map((category) => ({
-      twitch_id: category.twitchId,
-      twitch_name: category.twitchName,
-      twitch_box_image: category.twitchBoxImage,
-      user: {
-        id: userId,
+    const foundCategoriesByIds =
+      await this.categoryDataService.getLocalCategoriesByTwitchIds(
+        data.map(({ twitchId }) => twitchId),
+      );
+
+    const categoriesToCreate = data.reduce<CreateLocalCategoryDataDTO[]>(
+      (prev, curr) => {
+        const isAlreadyExists = foundCategoriesByIds.some(
+          ({ twitch_id }) => twitch_id === curr.twitchId,
+        );
+
+        if (!isAlreadyExists) prev.push(curr);
+
+        return prev;
       },
-    }));
+      [],
+    );
+
+    const formdData: DeepPartial<CategoryEntity>[] = categoriesToCreate.map(
+      (category) => ({
+        twitch_id: category.twitchId,
+        twitch_name: category.twitchName,
+        twitch_box_image: category.twitchBoxImage.replace('-52x72', ''),
+        user: { id: userId },
+      }),
+    );
 
     return this.categoryDataService.createLocalCategory(formdData);
   }
